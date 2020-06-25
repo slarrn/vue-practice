@@ -7,7 +7,7 @@
                     <md-button class="md-icon-button" @click="showCreate">
                         <md-icon>add</md-icon>
                     </md-button>
-                    <md-button :disabled="selected.length !== 1" class="md-icon-button" @click="showEdit">
+                    <md-button class="md-icon-button" @click="showEdit">
                         <md-icon>edit</md-icon>
                     </md-button>
                     <md-button class="md-icon-button" @click="onDelete">
@@ -19,6 +19,7 @@
             <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple" md-auto-select>
                 <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
                 <md-table-cell md-label="Project #">{{ item.project }}</md-table-cell>
+                <md-table-cell md-label="Status">{{ item.status }}</md-table-cell>
                 <md-table-cell md-label="With / Height / Length (m)">{{ `${item.width} / ${item.height} /
                     ${item.length}` }}
                 </md-table-cell>
@@ -28,17 +29,17 @@
 
         <md-dialog
           :md-active.sync="showDialog"
-          @md-closed="item = null">
+          @md-closed="clearItem">
             <md-dialog-title>
                 {{ `${item ? 'Edit' : 'Create'} Cargo` }}
             </md-dialog-title>
             <md-content>
-                <CustomForm
-                  :item="item"
-                  @create="onAdd"
-                  @edit="onEdit">
-                </CustomForm>
+                <CustomForm :item="item"></CustomForm>
             </md-content>
+            <md-dialog-actions>
+                <md-button class="md-primary" @click="showDialog = false">Cancel</md-button>
+                <md-button class="md-primary" @click="onSubmit">{{ item.id ? 'Edit' : 'Create' }}</md-button>
+            </md-dialog-actions>
         </md-dialog>
     </div>
 </template>
@@ -49,39 +50,66 @@
   export default {
     name: 'CustomTable',
     components: { CustomForm },
-    props: ['items'],
     data() {
       return {
-        item: null,
+        item: {
+          id: null,
+          name: null,
+          project: null,
+          status: 'Registered',
+          width: null,
+          height: null,
+          length: null,
+          weight: null
+        },
         selected: [],
         showDialog: false
       };
     },
     methods: {
       getID() {
-        return Math.max(this.items.map(cargo => cargo.id)) + 1;
+        return Math.max(...this.items.map(cargo => cargo.id)) + 1;
       },
       onSelect(items) {
         this.selected = items;
       },
-      onAdd(item) {
-        item.id = this.getID();
-        this.$emit('add', item);
+      onAdd() {
+        this.item.id = this.getID();
+        this.$store.dispatch('addItem', this.item);
       },
-      onEdit(item) {
-        this.$emit('edit', item);
+      onEdit() {
+        this.$store.dispatch('editItem', this.item);
       },
       onDelete() {
-        this.$emit('delete', this.selected);
+        this.$store.dispatch('deleteItems', this.selected);
       },
       showCreate() {
-        console.log('show create');
-        console.log(this.showDialog);
         this.showDialog = true;
       },
       showEdit() {
-        this.item = this.selected[0];
+        this.item = Object.assign({}, this.selected[0]);
         this.showDialog = true;
+      },
+      onSubmit() {
+        this.item.id ? this.onEdit() : this.onAdd();
+        this.showDialog = false;
+      },
+      clearItem() {
+        this.item = {
+          id: null,
+          name: null,
+          project: null,
+          status: 'Registered',
+          width: null,
+          height: null,
+          length: null,
+          weight: null
+        };
+      }
+    },
+    computed: {
+      items() {
+        return this.$store.getters.cargoes;
       }
     }
   };

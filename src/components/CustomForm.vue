@@ -1,7 +1,7 @@
 <template>
     <div>
-        <customForm novalidate class="md-layout">
-            <md-card class="md-layout-item">
+        <form novalidate class="md-layout">
+            <md-card class="md-layout-item form-card">
                 <md-card-content>
                     <md-field>
                         <label for="name">Name</label>
@@ -23,13 +23,13 @@
                     <div class="md-layout md-gutter">
                         <div class="md-layout-item md-small-size-100">
                             <md-field>
-                                <label for="width">Width</label>
+                                <label for="width">Width (m)</label>
                                 <md-input type="number" name="width" id="width" v-model="form.width"></md-input>
                             </md-field>
                         </div>
                         <div class="md-layout-item md-small-size-100">
                             <md-field>
-                                <label for="height">Height</label>
+                                <label for="height">Height (m)</label>
                                 <md-input type="number" name="height" id="height" v-model="form.height"></md-input>
                             </md-field>
                         </div>
@@ -37,24 +37,20 @@
                     <div class="md-layout md-gutter">
                         <div class="md-layout-item md-small-size-100">
                             <md-field>
-                                <label for="length">Length</label>
+                                <label for="length">Length (m)</label>
                                 <md-input type="number" name="length" id="length" v-model="form.length"></md-input>
                             </md-field>
                         </div>
                         <div class="md-layout-item md-small-size-100">
                             <md-field>
-                                <label for="weight">Weight</label>
+                                <label for="weight">Weight (mt)</label>
                                 <md-input type="number" name="weight" id="weight" v-model="form.weight"></md-input>
                             </md-field>
                         </div>
                     </div>
                 </md-card-content>
-
-                <md-card-actions>
-                    <md-button type="submit" class="md-primary" @click="onSubmit">{{ item ? 'Edit' : 'Create' }}</md-button>
-                </md-card-actions>
             </md-card>
-        </customForm>
+        </form>
     </div>
 </template>
 
@@ -62,33 +58,24 @@
 
   export default {
     name: 'CustomForm',
-    props: {
-      item: {
-        required: false
-      }
-    },
+    props: ['item'],
     data() {
       return {
-        form: this.item || {
-          id: null,
-          name: null,
-          project: null,
-          status: 'Registered',
-          width: null,
-          height: null,
-          length: null,
-          weight: null
-        }
+        form: this.item
       };
-    },
-    methods: {
-      onSubmit() {
-        this.form.id ? this.$emit('edit', this.form) : this.$emit('create', this.form)
-      }
     }
   };
 </script>
 
 <style lang="scss">
+    .md-dialog-container {
+        padding: 1rem;
+        max-height: none !important;
+    }
 
+    .form-card {
+        .md-card {
+            box-shadow: none !important;
+        }
+    }
 </style>
